@@ -7,46 +7,17 @@ import {
   Filter,
   Pin,
   PlayCircle,
-  Pointer,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-// const internshipData = [
-//   {
-//     _id: "1",
-//     title: "Frontend Developer Intern",
-//     company: "TechCorp",
-//     StartDate: "April 2025",
-//     Duration: "3 Months",
-//     stipend: "$500/month",
-//     category: "Web Development",
-//     location: "New York",
-//   },
-//   {
-//     _id: "2",
-//     title: "Data Science Intern",
-//     company: "DataTech",
-//     StartDate: "May 2025",
-//     Duration: "6 Months",
-//     stipend: "$800/month",
-//     category: "Data Science",
-//     location: "San Francisco",
-//   },
-//   {
-//     _id: "3",
-//     title: "Marketing Intern",
-//     company: "MarketPro",
-//     StartDate: "June 2025",
-//     Duration: "4 Months",
-//     stipend: "$400/month",
-//     category: "Marketing",
-//     location: "Los Angeles",
-//   },
-// ];
+import { buildBackendApiUrl } from "@/lib/backendApi";
+
 const index = () => {
-  const [filteredInternships, setfilteredInternships] = useState<any>([]);
+  const [filteredInternships, setfilteredInternships] = useState<any[]>([]);
   const [isFiltervisible, setisFiltervisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [filter, setfilters] = useState({
     category: "",
     location: "",
@@ -54,31 +25,52 @@ const index = () => {
     partTime: false,
     stipend: 50,
   });
-  const [internshipData,setinternship]=useState<any>([])
-  useEffect(()=>{
-    const fetchdata=async()=>{
-      try {
-        const res=await axios.get( "https://internshala-clone-y2p2.onrender.com/api/internship")     
-        setinternship(res.data)
-        setfilteredInternships(res.data)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    fetchdata()
-  },[])
+  const [allInternships, setInternship] = useState<any[]>([]);
+
   useEffect(() => {
-    const filtered = internshipData.filter((internship:any) => {
-      const matchesCategory = internship.category
+    const fetchdata = async () => {
+      setLoading(true);
+      setErrorMessage("");
+
+      try {
+        const res = await axios.get(buildBackendApiUrl("internship"), {
+          params: {
+            _: Date.now(),
+          },
+        });
+        const apiInternships = Array.isArray(res.data) ? res.data : [];
+        setInternship(apiInternships);
+        setfilteredInternships(apiInternships);
+      } catch (error) {
+        console.log(error);
+        setInternship([]);
+        setfilteredInternships([]);
+        setErrorMessage(
+          "Unable to load internships right now. Please try again later."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchdata();
+  }, []);
+
+  useEffect(() => {
+    const filtered = allInternships.filter((internship: any) => {
+      const matchesCategory = (internship.category || "")
         .toLowerCase()
         .includes(filter.category.toLowerCase());
-      const matchesLocation = internship.location
+      const matchesLocation = (internship.location || "")
         .toLowerCase()
         .includes(filter.location.toLowerCase());
+
       return matchesCategory && matchesLocation;
     });
+
     setfilteredInternships(filtered);
-  }, [filter, internshipData]);
+  }, [filter, allInternships]);
+
   const handlefilterchange = (e: any) => {
     const { name, value, type, checked } = e.target;
     setfilters((prev) => ({
@@ -86,6 +78,7 @@ const index = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
   const clearFilters = () => {
     setfilters({
       category: "",
@@ -98,12 +91,11 @@ const index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Filter  */}
-          <div className="hidden md:block w-64 bg-white rounded-lg shadow-sm p-6 h-fit">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-2">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-5 lg:px-12 2xl:px-16">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+          <div className="hidden h-fit rounded-lg bg-white p-6 shadow-sm md:block md:w-72 lg:w-64">
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <Filter className="h-5 w-5 text-blue-600" />
                 <span className="font-medium text-black">Filters</span>
               </div>
@@ -115,7 +107,6 @@ const index = () => {
               </button>
             </div>
             <div className="space-y-6">
-              {/* Profile/Category Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Category
@@ -129,7 +120,6 @@ const index = () => {
                   placeholder="e.g. Marketing Intern"
                 />
               </div>
-              {/* Location Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
@@ -144,9 +134,8 @@ const index = () => {
                 />
               </div>
 
-              {/* Checkboxes */}
               <div className="space-y-3">
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     name="workFromHome"
@@ -156,7 +145,7 @@ const index = () => {
                   />
                   <span className="text-gray-700">Work from home</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     name="partTime"
@@ -168,10 +157,9 @@ const index = () => {
                 </label>
               </div>
 
-              {/* Stipend Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Monthly Stipend (₹)
+                  Monthly Stipend (Rs)
                 </label>
                 <input
                   type="range"
@@ -183,94 +171,111 @@ const index = () => {
                   className="w-full"
                 />
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>₹0</span>
-                  <span>₹50K</span>
-                  <span>₹100K</span>
+                  <span>Rs0</span>
+                  <span>Rs50K</span>
+                  <span>Rs100K</span>
                 </div>
               </div>
             </div>
           </div>
+
           <div className="flex-1">
-            <div className="md:hidden mb-4">
+            <div className="mb-4 md:hidden">
               <button
-                onClick={() => setisFiltervisible(!isFiltervisible)}
-                className="w-full flex items-center justify-center space-x-2 bg-white p-3 rounded-lg shadow-sm text-black"
+                onClick={() => setisFiltervisible(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-white p-3 text-black shadow-sm"
               >
                 <Filter className="h-5 w-5" />
-                <span> Show Filters</span>
+                <span>Show Filters</span>
               </button>
             </div>
+
             <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
               <p className="text-center font-medium text-black">
                 {filteredInternships.length} Internships found
               </p>
             </div>
-            <div className="space-y-4">
-              {filteredInternships.map((internship: any) => (
-                <div
-                  key={internship._id}
-                  className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center space-x-2 text-blue-600 mb-4">
-                    <ArrowUpRight className="h-5 w-5" />
-                    <span className="font-medium">Actively Hiring</span>
-                  </div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">
-                    {internship.title}
-                  </h2>
-                  <p className="text-gray-600 mb-4">{internship.company}</p>
 
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="flex items-center space-x-2 text-gray-600">
-                      <PlayCircle className="h-5 w-5" />
-                      <div>
-                        <p className="text-sm font-medium">Start Date</p>
-                        <p className="text-sm">{internship.startDate}</p>
+            {loading ? (
+              <div className="bg-white rounded-lg shadow-sm p-6 text-center text-gray-600">
+                Loading internships...
+              </div>
+            ) : errorMessage ? (
+              <div className="bg-white rounded-lg shadow-sm p-6 text-center text-red-600">
+                {errorMessage}
+              </div>
+            ) : filteredInternships.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-6 text-center text-gray-600">
+                No internships available at the moment.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredInternships.map((internship: any) => (
+                  <div
+                    key={internship._id}
+                    className="rounded-lg bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
+                  >
+                    <div className="mb-4 flex items-center gap-2 text-blue-600">
+                      <ArrowUpRight className="h-5 w-5" />
+                      <span className="font-medium">Actively Hiring</span>
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">
+                      {internship.title}
+                    </h2>
+                    <p className="text-gray-600 mb-4">{internship.company}</p>
+
+                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <PlayCircle className="h-5 w-5" />
+                        <div>
+                          <p className="text-sm font-medium">Start Date</p>
+                          <p className="text-sm">{internship.startDate}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Pin className="h-5 w-5" />
+                        <div>
+                          <p className="text-sm font-medium">Location</p>
+                          <p className="text-sm">{internship.location}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <DollarSign className="h-5 w-5" />
+                        <div>
+                          <p className="text-sm font-medium">Stipend</p>
+                          <p className="text-sm">{internship.stipend}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 text-gray-600">
-                      <Pin className="h-5 w-5" />
-                      <div>
-                        <p className="text-sm font-medium">Location</p>
-                        <p className="text-sm">{internship.location}</p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                          Internship
+                        </span>
+                        <div className="flex items-center gap-1 text-green-600">
+                          <Clock className="h-4 w-4" />
+                          <span className="text-sm">Posted recently</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-2 text-gray-600">
-                      <DollarSign className="h-5 w-5" />
-                      <div>
-                        <p className="text-sm font-medium">Stipend</p>
-                        <p className="text-sm">{internship.stipend}</p>
-                      </div>
+                      <Link
+                        href={`/detailiternship/${internship._id}`}
+                        className="text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        View Details
+                      </Link>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                        Internship
-                      </span>
-                      <div className="flex items-center space-x-1 text-green-600">
-                        <Clock className="h-4 w-4" />
-                        <span className="text-sm">Posted recently</span>
-                      </div>
-                    </div>
-                    <Link
-                      href={`/detailiternship/${internship._id}`}
-                      className="text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
-      {/* Mobile Filters Modal */}
+
       {isFiltervisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden">
-          <div className="bg-white h-full w-full max-w-sm ml-auto p-6 overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
+          <div className="ml-auto h-full w-full max-w-sm overflow-y-auto bg-white p-5 sm:p-6">
+            <div className="mb-6 flex items-center justify-between">
               <h2 className="text-lg font-bold">Filters</h2>
               <button
                 onClick={() => setisFiltervisible(false)}
@@ -280,7 +285,6 @@ const index = () => {
               </button>
             </div>
             <div className="space-y-6">
-              {/* Profile/Category Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Category
@@ -294,7 +298,6 @@ const index = () => {
                   placeholder="e.g. Marketing Intern"
                 />
               </div>
-              {/* Location Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
@@ -309,9 +312,8 @@ const index = () => {
                 />
               </div>
 
-              {/* Checkboxes */}
               <div className="space-y-3">
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     name="workFromHome"
@@ -321,7 +323,7 @@ const index = () => {
                   />
                   <span className="text-gray-700">Work from home</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     name="partTime"
@@ -333,10 +335,9 @@ const index = () => {
                 </label>
               </div>
 
-              {/* Stipend Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Monthly Stipend (₹)
+                  Monthly Stipend (Rs)
                 </label>
                 <input
                   type="range"
@@ -348,13 +349,32 @@ const index = () => {
                   className="w-full"
                 />
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>₹0</span>
-                  <span>₹50K</span>
-                  <span>₹100K</span>
+                  <span>Rs0</span>
+                  <span>Rs50K</span>
+                  <span>Rs100K</span>
                 </div>
               </div>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearFilters();
+                    setisFiltervisible(false);
+                  }}
+                  className="secondary-button w-full text-sm"
+                >
+                  Clear all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setisFiltervisible(false)}
+                  className="primary-button w-full text-sm"
+                >
+                  Apply Filters
+                </button>
+              </div>
             </div>
-           
           </div>
         </div>
       )}

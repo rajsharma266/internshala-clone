@@ -4,6 +4,7 @@ const Applicationipschema = new mongoose.Schema({
   category: String,
   coverLetter: String,
   user: Object,
+  availability: String,
   createdAt: {
     type: Date,
     default: Date.now,
@@ -12,6 +13,15 @@ const Applicationipschema = new mongoose.Schema({
     type: String,
     enum: ["accepted", "pending", "rejected"],
     default: "pending",
+  },
+  statusUpdatedByRole: {
+    type: String,
+    enum: ["company", "recruiter"],
+    required: false,
+  },
+  statusUpdatedAt: {
+    type: Date,
+    required: false,
   },
   Application: Object,
 });

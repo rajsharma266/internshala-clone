@@ -7,7 +7,7 @@ const Internshipschema = new mongoose.Schema({
   aboutCompany: String,
   aboutInternship: String,
   whoCanApply: String,
-  perks: Array,
+  perks: mongoose.Schema.Types.Mixed,
   numberOfOpening: String,
   stipend: String,
   startDate: String,

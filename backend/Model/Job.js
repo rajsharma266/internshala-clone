@@ -8,10 +8,12 @@ const JobShcema = new mongoose.Schema({
   aboutCompany: String,
   aboutJob: String,
   whoCanApply: String,
-  perks: Array,
+  perks: mongoose.Schema.Types.Mixed,
   AdditionalInfo: String,
   CTC: String,
   StartDate: String,
+  startDate: String,
+  numberOfOpening: String,
   createAt: {
     type: Date,
     default: Date.now,

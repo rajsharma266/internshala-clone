@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
+import { buildBackendApiUrl } from "@/lib/backendApi";
 
 export default function SvgSlider() {
   const categories = [
@@ -25,65 +26,7 @@ export default function SvgSlider() {
     "Design",
     "Data Science",
   ];
-  // const internships = [
-  //   {
-  //     _id: "1",
-  //     title: "Software Engineering Intern",
-  //     company: "Google",
-  //     location: "Remote",
-  //     stipend: "$1,500/month",
-  //     duration: "3 months",
-  //     category: "Engineering",
-  //   },
-  //   {
-  //     _id: "2",
-  //     title: "Marketing Intern",
-  //     company: "Meta",
-  //     location: "New York",
-  //     stipend: "$1,200/month",
-  //     duration: "6 months",
-  //     category: "Media",
-  //   },
-  //   {
-  //     _id: "3",
-  //     title: "Graphic Design Intern",
-  //     company: "Adobe",
-  //     location: "San Francisco",
-  //     stipend: "$1,000/month",
-  //     duration: "4 months",
-  //     category: "Design",
-  //   },
-  // ];
 
-  // const jobs = [
-  //   {
-  //     _id: "101",
-  //     title: "Frontend Developer",
-  //     company: "Amazon",
-  //     location: "Seattle",
-  //     CTC: "$100K/year",
-  //     Experience: "2+ years",
-  //     category: "Engineering",
-  //   },
-  //   {
-  //     _id: "102",
-  //     title: "Data Analyst",
-  //     company: "Microsoft",
-  //     location: "Remote",
-  //     CTC: "$90K/year",
-  //     Experience: "1+ years",
-  //     category: "Data Science",
-  //   },
-  //   {
-  //     _id: "103",
-  //     title: "UX Designer",
-  //     company: "Apple",
-  //     location: "California",
-  //     CTC: "$110K/year",
-  //     Experience: "3+ years",
-  //     category: "Design",
-  //   },
-  // ];
   const slides = [
     {
       pattern: "pattern-1",
@@ -113,40 +56,56 @@ export default function SvgSlider() {
     { number: "21Mn+", label: "active students" },
     { number: "600K+", label: "learners" },
   ];
-  const [internships, setinternship] = useState<any>([]);
-  const [jobs, setjob] = useState<any>([]);
+
+  const [internships, setInternship] = useState<any[]>([]);
+  const [jobs, setJob] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [internshipsLoading, setInternshipsLoading] = useState(true);
+  const [jobsLoading, setJobsLoading] = useState(true);
+
   useEffect(() => {
     const fetchdata = async () => {
+      setInternshipsLoading(true);
+      setJobsLoading(true);
+
       try {
         const [internshipres, jobres] = await Promise.all([
-          axios.get("https://internshala-clone-y2p2.onrender.com/api/internship"),
-          axios.get("https://internshala-clone-y2p2.onrender.com/api/job"),
+          axios.get(buildBackendApiUrl("internship")),
+          axios.get(buildBackendApiUrl("job")),
         ]);
-        setinternship(internshipres.data);
-        setjob(jobres.data);
+
+        setInternship(Array.isArray(internshipres.data) ? internshipres.data : []);
+        setJob(Array.isArray(jobres.data) ? jobres.data : []);
       } catch (error) {
         console.log(error);
+        setInternship([]);
+        setJob([]);
+      } finally {
+        setInternshipsLoading(false);
+        setJobsLoading(false);
       }
     };
+
     fetchdata();
   }, []);
-  const [selectedCategory, setSelectedCategory] = useState("");
+
   const filteredInternships = internships.filter(
     (item: any) => !selectedCategory || item.category === selectedCategory
   );
+
   const filteredJobs = jobs.filter(
     (item: any) => !selectedCategory || item.category === selectedCategory
   );
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* hero section */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div className="mx-auto max-w-7xl px-4 py-8 md:px-5 lg:px-12 2xl:px-16">
+      <div className="mb-12 text-center">
+        <h1 className="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">
           Make your dream career a reality
         </h1>
-        <p className="text-xl text-gray-600">Trending on InternArea 🔥</p>
+        <p className="text-lg text-gray-600 sm:text-xl">Trending on InternArea</p>
       </div>
-      {/* Swiper section */}
+
       <div className="mb-16">
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
@@ -159,67 +118,23 @@ export default function SvgSlider() {
         >
           {slides.map((slide, index) => (
             <SwiperSlide key={index}>
-              <div className={`relative h-[400px] ${slide.bgColor}`}>
-                {/* SVG Pattern Background */}
+              <div className={`relative h-[260px] sm:h-[320px] lg:h-[400px] ${slide.bgColor}`}>
                 <div className="absolute inset-0 opacity-20">
                   <svg
                     className="w-full h-full"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    {slide.pattern === "pattern-1" && (
-                      <pattern
-                        id="pattern-1"
-                        x="0"
-                        y="0"
-                        width="20"
-                        height="20"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <circle cx="10" cy="10" r="3" fill="white" />
-                      </pattern>
-                    )}
-                    {slide.pattern === "pattern-2" && (
-                      <pattern
-                        id="pattern-2"
-                        x="0"
-                        y="0"
-                        width="40"
-                        height="40"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <rect
-                          x="15"
-                          y="15"
-                          width="10"
-                          height="10"
-                          fill="white"
-                        />
-                      </pattern>
-                    )}
-                    {slide.pattern === "pattern-3" && (
-                      <pattern
-                        id="pattern-3"
-                        x="0"
-                        y="0"
-                        width="40"
-                        height="40"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="white" />
-                      </pattern>
-                    )}
-                    {slide.pattern === "pattern-4" && (
-                      <pattern
-                        id="pattern-4"
-                        x="0"
-                        y="0"
-                        width="60"
-                        height="60"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <path d="M30 5 L55 30 L30 55 L5 30 Z" fill="white" />
-                      </pattern>
-                    )}
+                    <pattern
+                      id={slide.pattern}
+                      x="0"
+                      y="0"
+                      width="40"
+                      height="40"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <circle cx="20" cy="20" r="4" fill="white" />
+                    </pattern>
+
                     <rect
                       x="0"
                       y="0"
@@ -230,9 +145,8 @@ export default function SvgSlider() {
                   </svg>
                 </div>
 
-                {/* Content */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <h2 className="text-4xl font-bold text-white">
+                <div className="absolute inset-0 flex items-center justify-center px-4 text-center">
+                  <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
                     {slide.title}
                   </h2>
                 </div>
@@ -241,18 +155,26 @@ export default function SvgSlider() {
           ))}
         </Swiper>
       </div>
-      {/* Category section */}
+
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Latest internships on Intern Area
         </h2>
-        <div className="flex flex-wrap gap-4">
-          <span className="text-gray-700 font-medium">POPULAR CATEGORIES:</span>
+
+        <div className="flex flex-wrap gap-3 sm:gap-4">
+          <span className="w-full text-sm font-medium text-gray-700 sm:w-auto sm:text-base">
+            POPULAR CATEGORIES:
+          </span>
+
           {categories.map((category) => (
             <button
               key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full transition-colors ${
+              onClick={() =>
+                setSelectedCategory(
+                  selectedCategory === category ? "" : category
+                )
+              }
+              className={`rounded-full px-4 py-2 text-sm transition-colors sm:text-base ${
                 selectedCategory === category
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -263,87 +185,57 @@ export default function SvgSlider() {
           ))}
         </div>
       </div>
-      {/* INternship grid   */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-        {filteredInternships.map((internship: any, index: any) => (
-          <div
-            key={index}
-            className="bg-white rounded-lg shadow-md p-6 transition-transform hover:transform hover:scale-105"
-          >
-            <div className="flex items-center gap-2 text-blue-600 mb-4">
-              <ArrowUpRight size={20} />
-              <span className="font-medium">Actively Hiring</span>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">
-              {internship.title}
-            </h3>
-            <p className="text-gray-500 mb-4">{internship.company}</p>
-            <div className="space-y-3 text-gray-600">
-              <div className="flex items-center gap-2">
-                <MapPin size={18} />
-                <span>{internship.location}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Banknote size={18} />
-                <span>{internship.stipend}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar size={18} />
-                <span>{internship.duration}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between mt-6">
-              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                Internship
-              </span>
-              <Link
-                href={`/detailiternship/${internship._id}`}
-                className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
-              >
-                View details
-                <ChevronRight size={16} />
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Jobs grid   */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Jobs</h2>
+
+      {internshipsLoading ? (
+        <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-600 mb-16">
+          Loading internships...
+        </div>
+      ) : filteredInternships.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-600 mb-16">
+          No internships available at the moment.
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {filteredJobs.map((job: any, index: any) => (
+          {filteredInternships.map((internship: any) => (
             <div
-              key={index}
-              className="bg-white rounded-lg shadow-md p-6 transition-transform hover:transform hover:scale-105"
+              key={internship._id}
+              className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-transform hover:scale-105 sm:p-6"
             >
               <div className="flex items-center gap-2 text-blue-600 mb-4">
                 <ArrowUpRight size={20} />
                 <span className="font-medium">Actively Hiring</span>
               </div>
+
               <h3 className="text-lg font-semibold mb-2 text-gray-800">
-                {job.title}
+                {internship.title}
               </h3>
-              <p className="text-gray-500 mb-4">{job.company}</p>
+
+              <p className="text-gray-500 mb-4">{internship.company}</p>
+
               <div className="space-y-3 text-gray-600">
                 <div className="flex items-center gap-2">
                   <MapPin size={18} />
-                  <span>{job.location}</span>
+                  <span>{internship.location}</span>
                 </div>
+
                 <div className="flex items-center gap-2">
                   <Banknote size={18} />
-                  <span>{job.CTC}</span>
+                  <span>{internship.stipend}</span>
                 </div>
+
                 <div className="flex items-center gap-2">
                   <Calendar size={18} />
-                  <span>{job.Experience}</span>
+                  <span>{internship.startDate}</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between mt-6">
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                  Jobs
+                  Internship
                 </span>
+
                 <Link
-                  href={`/detailInternship?q=${job._id}`}
+                  href={`/detailiternship/${internship._id}`}
                   className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
                   View details
@@ -353,13 +245,78 @@ export default function SvgSlider() {
             </div>
           ))}
         </div>
+      )}
+
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Jobs</h2>
+
+        {jobsLoading ? (
+          <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-600 mb-16">
+            Loading jobs...
+          </div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-600 mb-16">
+            No jobs available at the moment.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {filteredJobs.map((job: any) => (
+              <div
+                key={job._id}
+                className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-transform hover:scale-105 sm:p-6"
+              >
+                <div className="flex items-center gap-2 text-blue-600 mb-4">
+                  <ArrowUpRight size={20} />
+                  <span className="font-medium">Actively Hiring</span>
+                </div>
+
+                <h3 className="text-lg font-semibold mb-2 text-gray-800">
+                  {job.title}
+                </h3>
+
+                <p className="text-gray-500 mb-4">{job.company}</p>
+
+                <div className="space-y-3 text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <MapPin size={18} />
+                    <span>{job.location}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Banknote size={18} />
+                    <span>{job.CTC}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Calendar size={18} />
+                    <span>{job.Experience}</span>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+                    Jobs
+                  </span>
+
+                  <Link
+                    href={`/detailjob/${job._id}`}
+                    className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                  >
+                    View details
+                    <ChevronRight size={16} />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      {/* Stat Section  */}
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+      <div className="mb-16 rounded-xl bg-white p-6 shadow-lg sm:p-8">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">
+              <div className="mb-2 text-3xl font-bold text-blue-600 sm:text-4xl">
                 {stat.number}
               </div>
               <div className="text-gray-600">{stat.label}</div>
@@ -370,3 +327,4 @@ export default function SvgSlider() {
     </div>
   );
 }
+

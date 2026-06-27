@@ -1,58 +1,85 @@
-import { Facebook, Twitter, Instagram } from "lucide-react";
+import Link from "next/link";
+import { Facebook, Instagram, Twitter } from "lucide-react";
+
+const footerGroups = [
+  {
+    title: "Opportunities",
+    items: [
+      { label: "Internships", href: "/internship" },
+      { label: "Jobs", href: "/job" },
+      { label: "Public Space", href: "/publicspace" },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { label: "Login", href: "/login" },
+      { label: "Register", href: "/register" },
+      { label: "Forgot Password", href: "/forgotpassword" },
+    ],
+  },
+  {
+    title: "Student Tools",
+    items: [
+      { label: "Subscription", href: "/subscription" },
+      { label: "Resume Builder", href: "/resume" },
+      { label: "Language", href: "/language" },
+    ],
+  },
+  {
+    title: "Profile",
+    items: [
+      { label: "Friends", href: "/friends" },
+      { label: "Login History", href: "/loginhistory" },
+      { label: "Profile", href: "/profile" },
+    ],
+  },
+];
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white py-12">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          <FooterSection title="Internship by places" items={["New York", "Los Angeles", "Chicago", "San Francisco", "Miami", "Seattle"]} />
-          <FooterSection title="Internship by stream" items={["About us", "Careers", "Press", "News", "Media kit", "Contact"]} />
-          <FooterSection title="Job Places" items={["Blog", "Newsletter", "Events", "Help center", "Tutorials", "Supports"]} links />
-          <FooterSection title="Jobs by streams" items={["Startups", "Enterprise", "Government", "SaaS", "Marketplaces", "Ecommerce"]} links />
-        </div>
-
-        <hr className="my-10 border-gray-600" />
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          <FooterSection title="About us" items={["Startups", "Enterprise"]} links />
-          <FooterSection title="Team diary" items={["Startups", "Enterprise"]} links />
-          <FooterSection title="Terms and conditions" items={["Startups", "Enterprise"]} links />
-          <FooterSection title="Sitemap" items={["Startups"]} links />
-        </div>
-
-        <div className="mt-10 flex flex-col sm:flex-row justify-between items-center">
-          <p className="flex items-center gap-2 border border-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-700">
-            <i className="bi bi-google-play"></i> Get Android App
-          </p>
-          <div className="flex space-x-4 mt-4 sm:mt-0">
-            <Facebook className="w-6 h-6 hover:text-blue-400 cursor-pointer" />
-            <Twitter className="w-6 h-6 hover:text-blue-400 cursor-pointer" />
-            <Instagram className="w-6 h-6 hover:text-pink-400 cursor-pointer" />
+    <footer className="border-t border-slate-200 bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-5 lg:px-12 2xl:px-16">
+        <div className="grid gap-10 sm:grid-cols-2 xl:grid-cols-[1.4fr_repeat(4,1fr)]">
+          <div>
+            <img src="/logo.png" alt="InternArea" className="h-12 w-auto" />
+            <p className="mt-4 max-w-xs text-sm leading-6 text-slate-500">
+              InternArea helps students manage internships, jobs, subscriptions,
+              public posts, and resume workflows in one clean workspace.
+            </p>
           </div>
-          <p className="mt-4 sm:mt-0 text-sm text-gray-400">© Copyright 2025. All Rights Reserved.</p>
+
+          {footerGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="text-sm font-semibold text-slate-900">
+                {group.title}
+              </h3>
+              <div className="mt-4 flex flex-col gap-3">
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-sm text-slate-500 transition hover:text-blue-600"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 flex flex-col gap-4 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-500">
+            Copyright 2026 InternArea. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4 text-slate-400">
+            <Facebook className="h-5 w-5" />
+            <Twitter className="h-5 w-5" />
+            <Instagram className="h-5 w-5" />
+          </div>
         </div>
       </div>
     </footer>
-  );
-}
-
-function FooterSection({ title, items, links }:any) {
-  return (
-    <div>
-      <h3 className="text-sm font-bold text-gray-300">{title}</h3>
-      <div className="flex flex-col items-start mt-4 space-y-3">
-        {items.map((item:any, index:any) =>
-          links ? (
-            <a key={index} href="/" className="text-gray-400 hover:text-blue-400 hover:underline">
-              {item}
-            </a>
-          ) : (
-            <p key={index} className="text-gray-400 hover:text-blue-400 hover:underline cursor-pointer">
-              {item}
-            </p>
-          )
-        )}
-      </div>
-    </div>
   );
 }
