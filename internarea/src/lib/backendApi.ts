@@ -1,4 +1,4 @@
-const fallbackBaseUrl = "http://localhost:5000/api";
+const fallbackBaseUrl = "https://internshala-clone-4zug.onrender.com/api";
 
 export const backendApiBaseUrl = (
   process.env.NEXT_PUBLIC_BACKEND_API_URL || fallbackBaseUrl
