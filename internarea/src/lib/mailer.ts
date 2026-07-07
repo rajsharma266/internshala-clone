@@ -8,13 +8,15 @@ export const createMailer = () => {
     throw new Error("Email credentials are not configured.");
   }
 
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: emailUser,
-      pass: emailPass,
-    },
-  });
+  const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 };
 
 export const fromEmail = emailUser || "";
