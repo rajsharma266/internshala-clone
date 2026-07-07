@@ -7,11 +7,11 @@ require("dotenv").config({
   path: path.resolve(__dirname, ".env"),
 });
 
-const url = process.env.MONGO_URI || process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI;
 
 module.exports.connect = async () => {
   if (!url) {
-    throw new Error("MONGO_URI or MONGODB_URI is not configured");
+    throw new Error("MONGODB_URI is not configured");
   }
 
   await mongoose.connect(url, {
