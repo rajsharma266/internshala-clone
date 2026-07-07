@@ -17,6 +17,7 @@ export const createMailer = () => {
     pass: process.env.EMAIL_PASS,
   },
 });
+ return transporter;
 };
 
 export const fromEmail = emailUser || "";
